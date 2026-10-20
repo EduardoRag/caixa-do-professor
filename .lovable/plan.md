@@ -11,7 +11,7 @@ App mobile-first em pt-BR (BRL, datas dd/mm/aaaa) para professores controlarem a
 - Página inicial `/` simples com chamada para entrar; navegação inferior no celular.
 
 ## Visual
-Tom calmo e profissional: fundo creme, verde-escuro como cor principal, tipografia Outfit + Figtree, números grandes e legíveis.
+Tom escuro e profissional: fundo grafite-arroxeado profundo, roxo vibrante como cor principal com destaques em lilás, tipografia Outfit + Figtree, números grandes e legíveis.
 
 ## Backend (Lovable Cloud)
 - Login por e-mail/senha com confirmação por e-mail (padrão).
