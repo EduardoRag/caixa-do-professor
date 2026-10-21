@@ -63,14 +63,12 @@
   --color-success-foreground: var(--success-foreground);
   --color-warning: var(--warning);
   --color-warning-foreground: var(--warning-foreground);
-  --font-display: var(--font-display);
-  --font-sans: var(--font-body);
+  --font-display: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Figtree", ui-sans-serif, system-ui, sans-serif;
 }
 
 :root {
   --radius: 0.875rem;
-  --font-display: "Outfit", ui-sans-serif, system-ui, sans-serif;
-  --font-body: "Figtree", ui-sans-serif, system-ui, sans-serif;
   --background: oklch(0.16 0.025 290);
   --foreground: oklch(0.96 0.01 300);
   --card: oklch(0.205 0.035 290);
@@ -119,7 +117,7 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
-    font-family: var(--font-body);
+    font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
   }
   h1, h2, h3 {
