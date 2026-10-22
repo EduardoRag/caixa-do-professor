@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState, StatusBadge } from "@/components/AppShell";
-import { CompetencePicker } from "./painel";
+import { CompetencePicker } from "@/components/CompetencePicker";
 import { invoicesByCompetenceQuery } from "@/lib/queries";
 import { currentCompetence, formatBRL, formatDateBR } from "@/lib/finance";
 
