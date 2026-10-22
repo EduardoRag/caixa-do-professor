@@ -103,7 +103,7 @@ function Detalhe() {
               const m = l.metadata as Record<string, string | number>;
               return (
                 <li key={l.id}>
-                  {formatDateBR(l.created_at)}: {formatBRL(Number(m.old_amount_cents))} → {formatBRL(Number(m.new_amount_cents))}, venc. {formatDateBR(String(m.old_due_date))} → {formatDateBR(String(m.new_due_date))}
+                  {formatDateBR(l.created_at)}: {formatBRL(Number(m["old_amount_cents"]))} → {formatBRL(Number(m["new_amount_cents"]))}, venc. {formatDateBR(String(m["old_due_date"]))} → {formatDateBR(String(m["new_due_date"]))}
                 </li>
               );
             })}

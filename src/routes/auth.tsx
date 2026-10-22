@@ -44,10 +44,10 @@ function AuthPage() {
     if (busy) return;
     setInfo(null);
     const em = emailSchema.safeParse(email);
-    if (!em.success) return toast.error(em.error.issues[0].message);
+    if (!em.success) { toast.error(em.error.issues[0]?.message ?? "E-mail inválido"); return; }
     if (mode !== "forgot") {
       const pw = passwordSchema.safeParse(password);
-      if (!pw.success) return toast.error(pw.error.issues[0].message);
+      if (!pw.success) { toast.error(pw.error.issues[0]?.message ?? "Senha inválida"); return; }
     }
     setBusy(true);
     try {

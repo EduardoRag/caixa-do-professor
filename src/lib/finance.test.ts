@@ -29,6 +29,6 @@ describe("finance rules", () => {
     const msg = buildChargeMessage({ name: "Ana Souza", competence: "2026-10", balanceCents: 15000, dueDate: "2026-10-10" });
     const link = whatsappLink("11987654321", msg);
     expect(link.startsWith("https://wa.me/5511987654321?text=")).toBe(true);
-    expect(decodeURIComponent(link.split("text=")[1])).toContain("150,00");
+    expect(decodeURIComponent(link.split("text=")[1] ?? "")).toContain("150,00");
   });
 });
