@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
+import { CompetencePicker } from "@/components/CompetencePicker";
 import { toast } from "sonner";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState, StatusBadge } from "@/components/AppShell";
 import { invoicesByCompetenceQuery } from "@/lib/queries";
-import { competenceLabel, currentCompetence, formatBRL, formatDateBR, friendlyError, shiftCompetence } from "@/lib/finance";
+import { currentCompetence, formatBRL, formatDateBR, friendlyError } from "@/lib/finance";
 
 const search = z.object({ mes: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/).optional() });
 
@@ -24,20 +25,6 @@ export const Route = createFileRoute("/_authenticated/painel")({
   }),
   component: Painel,
 });
-
-export function CompetencePicker({ value, onChange }: { value: string; onChange: (v: string) => void }) {
-  return (
-    <div className="flex items-center gap-2">
-      <Button variant="secondary" size="icon" aria-label="Mês anterior" onClick={() => onChange(shiftCompetence(value, -1))}>
-        <ChevronLeft className="h-4 w-4" />
-      </Button>
-      <span className="min-w-36 text-center font-display font-semibold capitalize">{competenceLabel(value)}</span>
-      <Button variant="secondary" size="icon" aria-label="Próximo mês" onClick={() => onChange(shiftCompetence(value, 1))}>
-        <ChevronRight className="h-4 w-4" />
-      </Button>
-    </div>
-  );
-}
 
 function Painel() {
   const { mes } = Route.useSearch();

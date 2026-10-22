@@ -43,7 +43,7 @@ export function currentCompetence(now: Date = new Date()): string {
 }
 
 export function shiftCompetence(comp: string, delta: number): string {
-  const [y, m] = comp.split("-").map(Number);
+  const [y = 0, m = 1] = comp.split("-").map(Number);
   const idx = y * 12 + (m - 1) + delta;
   const ny = Math.floor(idx / 12);
   const nm = (idx % 12) + 1;
@@ -55,7 +55,7 @@ const MONTHS = [
   "julho", "agosto", "setembro", "outubro", "novembro", "dezembro",
 ];
 export function competenceLabel(comp: string): string {
-  const [y, m] = comp.split("-").map(Number);
+  const [y = 0, m = 1] = comp.split("-").map(Number);
   return `${MONTHS[m - 1]} de ${y}`;
 }
 
@@ -108,7 +108,7 @@ const ERROR_MESSAGES: Record<string, string> = {
 export function friendlyError(err: unknown): string {
   const msg = typeof err === "object" && err && "message" in err ? String((err as { message: unknown }).message) : "";
   const code = (err as { code?: string } | null)?.code;
-  for (const key of Object.keys(ERROR_MESSAGES)) if (msg.includes(key)) return ERROR_MESSAGES[key];
+  for (const key of Object.keys(ERROR_MESSAGES)) if (msg.includes(key)) return ERROR_MESSAGES[key]!;
   if (code === "23503") return "Este aluno possui histórico financeiro e não pode ser excluído. Inative-o.";
   return "Não foi possível concluir a operação. Tente novamente.";
 }

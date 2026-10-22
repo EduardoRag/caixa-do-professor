@@ -16,6 +16,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedAlunosRouteImport } from './routes/_authenticated/alunos'
 import { Route as AuthenticatedPainelRouteImport } from './routes/_authenticated/painel'
 import { Route as AuthenticatedMensalidadesIndexRouteImport } from './routes/_authenticated/mensalidades.index'
+import { Route as AuthenticatedMensalidadesIdRouteImport } from './routes/_authenticated/mensalidades.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -52,6 +53,12 @@ const AuthenticatedMensalidadesIndexRoute =
     path: '/mensalidades/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedMensalidadesIdRoute =
+  AuthenticatedMensalidadesIdRouteImport.update({
+    id: '/mensalidades/$id',
+    path: '/mensalidades/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -59,6 +66,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/alunos': typeof AuthenticatedAlunosRoute
   '/painel': typeof AuthenticatedPainelRoute
+  '/mensalidades/$id': typeof AuthenticatedMensalidadesIdRoute
   '/mensalidades/': typeof AuthenticatedMensalidadesIndexRoute
 }
 export interface FileRoutesByTo {
@@ -67,6 +75,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/alunos': typeof AuthenticatedAlunosRoute
   '/painel': typeof AuthenticatedPainelRoute
+  '/mensalidades/$id': typeof AuthenticatedMensalidadesIdRoute
   '/mensalidades': typeof AuthenticatedMensalidadesIndexRoute
 }
 export interface FileRoutesById {
@@ -77,15 +86,28 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/alunos': typeof AuthenticatedAlunosRoute
   '/_authenticated/painel': typeof AuthenticatedPainelRoute
+  '/_authenticated/mensalidades/$id': typeof AuthenticatedMensalidadesIdRoute
   '/_authenticated/mensalidades/': typeof AuthenticatedMensalidadesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/auth' | '/reset-password' | '/alunos' | '/painel' | '/mensalidades/'
+    | '/'
+    | '/auth'
+    | '/reset-password'
+    | '/alunos'
+    | '/painel'
+    | '/mensalidades/$id'
+    | '/mensalidades/'
   fileRoutesByTo: FileRoutesByTo
   to:
-    '/' | '/auth' | '/reset-password' | '/alunos' | '/painel' | '/mensalidades'
+    | '/'
+    | '/auth'
+    | '/reset-password'
+    | '/alunos'
+    | '/painel'
+    | '/mensalidades/$id'
+    | '/mensalidades'
   id:
     | '__root__'
     | '/'
@@ -94,6 +116,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/_authenticated/alunos'
     | '/_authenticated/painel'
+    | '/_authenticated/mensalidades/$id'
     | '/_authenticated/mensalidades/'
   fileRoutesById: FileRoutesById
 }
@@ -155,18 +178,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMensalidadesIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/mensalidades/$id': {
+      id: '/_authenticated/mensalidades/$id'
+      path: '/mensalidades/$id'
+      fullPath: '/mensalidades/$id'
+      preLoaderRoute: typeof AuthenticatedMensalidadesIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAlunosRoute: typeof AuthenticatedAlunosRoute
   AuthenticatedPainelRoute: typeof AuthenticatedPainelRoute
+  AuthenticatedMensalidadesIdRoute: typeof AuthenticatedMensalidadesIdRoute
   AuthenticatedMensalidadesIndexRoute: typeof AuthenticatedMensalidadesIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAlunosRoute: AuthenticatedAlunosRoute,
   AuthenticatedPainelRoute: AuthenticatedPainelRoute,
+  AuthenticatedMensalidadesIdRoute: AuthenticatedMensalidadesIdRoute,
   AuthenticatedMensalidadesIndexRoute: AuthenticatedMensalidadesIndexRoute,
 }
 
