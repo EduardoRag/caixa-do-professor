@@ -8,7 +8,7 @@ export function CompetencePicker({ value, onChange }: { value: string; onChange:
       <Button variant="secondary" size="icon" aria-label="Mês anterior" onClick={() => onChange(shiftCompetence(value, -1))}>
         <ChevronLeft className="h-4 w-4" />
       </Button>
-      <span className="min-w-36 text-center font-display font-semibold capitalize">{competenceLabel(value)}</span>
+      <span className="min-w-36 text-center font-display font-semibold first-letter:uppercase">{competenceLabel(value)}</span>
       <Button variant="secondary" size="icon" aria-label="Próximo mês" onClick={() => onChange(shiftCompetence(value, 1))}>
         <ChevronRight className="h-4 w-4" />
       </Button>

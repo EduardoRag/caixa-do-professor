@@ -55,7 +55,7 @@ function Detalhe() {
       </Link>
 
       <div className="rounded-2xl border border-border bg-card p-5 shadow-glow">
-        <p className="text-sm capitalize text-muted-foreground">{competenceLabel(inv.competence!)}</p>
+        <p className="text-sm text-muted-foreground first-letter:uppercase">{competenceLabel(inv.competence!)}</p>
         <h1 className="font-display text-2xl font-bold">{inv.student_name}</h1>
         <div className="mt-2"><StatusBadge status={inv.payment_status!} overdue={!!inv.is_overdue} /></div>
         <dl className="mt-5 grid grid-cols-3 gap-3 text-sm">
