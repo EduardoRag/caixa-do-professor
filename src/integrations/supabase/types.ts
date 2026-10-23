@@ -146,6 +146,7 @@ export type Database = {
           id: string
           instrument: string | null
           is_active: boolean
+          lesson_days: number[]
           monthly_amount_cents: number
           name: string
           phone: string | null
@@ -158,6 +159,7 @@ export type Database = {
           id?: string
           instrument?: string | null
           is_active?: boolean
+          lesson_days?: number[]
           monthly_amount_cents: number
           name: string
           phone?: string | null
@@ -170,6 +172,7 @@ export type Database = {
           id?: string
           instrument?: string | null
           is_active?: boolean
+          lesson_days?: number[]
           monthly_amount_cents?: number
           name?: string
           phone?: string | null

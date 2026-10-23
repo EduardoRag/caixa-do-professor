@@ -9,11 +9,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { EmptyState } from "@/components/AppShell";
 import { studentsQuery } from "@/lib/queries";
+import { LESSON_DAYS, lessonDaysLabel } from "@/lib/lesson-days";
 import { centsToInput, formatBRL, friendlyError, isValidPhone, onlyDigitsPhone, parseBRLToCents } from "@/lib/finance";
 
 export const Route = createFileRoute("/_authenticated/alunos")({
@@ -23,6 +25,8 @@ export const Route = createFileRoute("/_authenticated/alunos")({
       { name: "description", content: "Cadastro de alunos e valores mensais." },
       { property: "og:title", content: "Alunos — Caixa do Professor" },
       { property: "og:description", content: "Cadastro de alunos e valores mensais." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Alunos,
@@ -42,9 +46,9 @@ function Alunos() {
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between gap-3">
-        <h1 className="font-display text-2xl font-bold">Alunos</h1>
-        <Button className="bg-gradient-primary" onClick={() => setEditing("new")}>
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 sm:flex sm:justify-between">
+        <h1 className="min-w-0 truncate font-display text-2xl font-bold">Alunos</h1>
+        <Button className="shrink-0 bg-gradient-primary" onClick={() => setEditing("new")}>
           <Plus className="h-4 w-4" /> Novo aluno
         </Button>
       </div>
@@ -60,21 +64,22 @@ function Alunos() {
           {!data?.length && "Comece cadastrando seu primeiro aluno."}
         </EmptyState>
       ) : (
-        <ul className="space-y-2">
+        <ul className="grid gap-3 lg:grid-cols-2">
           {list.map((s) => (
             <li key={s.id}>
-              <button onClick={() => setEditing(s)} className="flex w-full items-center justify-between gap-3 rounded-xl border border-border bg-card p-4 text-left transition-colors hover:border-primary/60">
+              <Button variant="ghost" onClick={() => setEditing(s)} className="grid h-auto w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-3 whitespace-normal rounded-lg border border-border bg-card p-4 text-left hover:border-primary/60 hover:bg-card">
                 <div className="min-w-0">
                   <p className="truncate font-medium">{s.name}</p>
                   <p className="text-xs text-muted-foreground">
                     {[s.instrument, `vence dia ${s.due_day}`].filter(Boolean).join(" · ")}
                   </p>
+                  <p className="mt-1 text-xs text-accent">{lessonDaysLabel(s.lesson_days) || "Dias não definidos"}</p>
                 </div>
-                <div className="text-right">
+                <div className="shrink-0 text-right">
                   <p className="tabular font-display font-semibold">{formatBRL(s.monthly_amount_cents)}</p>
                   {!s.is_active && <span className="text-xs text-muted-foreground">Inativo</span>}
                 </div>
-              </button>
+              </Button>
             </li>
           ))}
         </ul>
@@ -92,6 +97,7 @@ function StudentDialog({ student, onClose }: { student: Student | null; onClose:
   const [amount, setAmount] = useState(student ? centsToInput(student.monthly_amount_cents) : "");
   const [dueDay, setDueDay] = useState(String(student?.due_day ?? 10));
   const [active, setActive] = useState(student?.is_active ?? true);
+  const [lessonDays, setLessonDays] = useState<number[]>(student?.lesson_days ?? []);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   const save = useMutation({
@@ -111,6 +117,7 @@ function StudentDialog({ student, onClose }: { student: Student | null; onClose:
         monthly_amount_cents: cents,
         due_day: day,
         is_active: active,
+        lesson_days: lessonDays,
       };
       if (student) {
         const { error } = await supabase.from("students").update(payload).eq("id", student.id);
@@ -131,7 +138,8 @@ function StudentDialog({ student, onClose }: { student: Student | null; onClose:
 
   const remove = useMutation({
     mutationFn: async () => {
-      const { error } = await supabase.from("students").delete().eq("id", student!.id);
+      if (!student) throw new Error("Aluno não encontrado.");
+      const { error } = await supabase.from("students").delete().eq("id", student.id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -176,7 +184,18 @@ function StudentDialog({ student, onClose }: { student: Student | null; onClose:
               <Input id="due" type="number" min={1} max={28} value={dueDay} onChange={(e) => setDueDay(e.target.value)} />
             </div>
           </div>
-          <div className="flex items-center justify-between rounded-lg bg-secondary p-3">
+          <fieldset className="space-y-3">
+            <legend className="text-sm font-medium">Dias de aula</legend>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {LESSON_DAYS.map((day) => (
+                <div key={day.value} className="flex min-w-0 items-center gap-2">
+                  <Checkbox id={`lesson-day-${day.value}`} checked={lessonDays.includes(day.value)} onCheckedChange={(checked) => setLessonDays((days) => checked === true ? [...days, day.value].sort((a, b) => a - b) : days.filter((value) => value !== day.value))} />
+                  <Label htmlFor={`lesson-day-${day.value}`} className="cursor-pointer text-sm">{day.label}</Label>
+                </div>
+              ))}
+            </div>
+          </fieldset>
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-lg bg-secondary p-3">
             <div>
               <Label htmlFor="active">Aluno ativo</Label>
               <p className="text-xs text-muted-foreground">Inativos não geram novas mensalidades.</p>

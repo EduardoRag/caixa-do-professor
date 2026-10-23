@@ -1,0 +1,3 @@
+ALTER TABLE public.students ADD COLUMN lesson_days smallint[] NOT NULL DEFAULT '{}';
+ALTER TABLE public.students ADD CONSTRAINT students_lesson_days_valid CHECK (lesson_days <@ ARRAY[0,1,2,3,4,5,6]::smallint[] AND array_position(lesson_days, NULL) IS NULL AND cardinality(lesson_days) <= 7);
+COMMENT ON COLUMN public.students.lesson_days IS 'Recurring weekly lesson days: 0 Sunday through 6 Saturday; empty means not specified. Existing teacher ownership policies apply.';
