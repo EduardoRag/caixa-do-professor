@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Sparkles } from "lucide-react";
+import { CalendarDays, Sparkles } from "lucide-react";
 import { CompetencePicker } from "@/components/CompetencePicker";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -8,7 +8,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState, StatusBadge } from "@/components/AppShell";
-import { invoicesByCompetenceQuery } from "@/lib/queries";
+import { invoicesByCompetenceQuery, studentsQuery } from "@/lib/queries";
+import { lessonDaysLabel, studentsForLessonDay } from "@/lib/lesson-days";
+import { useLessonToday } from "@/hooks/use-lesson-today";
 import { currentCompetence, formatBRL, formatDateBR, friendlyError } from "@/lib/finance";
 
 const search = z.object({ mes: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/).optional() });
@@ -21,6 +23,8 @@ export const Route = createFileRoute("/_authenticated/painel")({
       { name: "description", content: "Resumo financeiro do mês." },
       { property: "og:title", content: "Painel — Caixa do Professor" },
       { property: "og:description", content: "Resumo financeiro do mês." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Painel,
@@ -32,6 +36,9 @@ function Painel() {
   const navigate = Route.useNavigate();
   const qc = useQueryClient();
   const { data, isLoading, isError } = useQuery(invoicesByCompetenceQuery(competence));
+  const students = useQuery(studentsQuery());
+  const today = useLessonToday();
+  const todayStudents = today ? studentsForLessonDay(students.data ?? [], today.weekday) : [];
 
   const generate = useMutation({
     mutationFn: async () => {
@@ -72,7 +79,34 @@ function Painel() {
         {generate.isPending ? "Gerando…" : "Gerar mensalidades do mês"}
       </Button>
 
-      <section className="space-y-3">
+      <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+      <section className="min-w-0 space-y-3">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+          <div className="min-w-0">
+            <h2 className="flex items-center gap-2 font-display text-lg font-semibold"><CalendarDays className="h-5 w-5 shrink-0 text-accent" /> Aulas de hoje</h2>
+            <p className="mt-1 text-sm text-muted-foreground">{today?.label ?? "…"}</p>
+          </div>
+          <span className="shrink-0 text-sm text-muted-foreground">{todayStudents.length} aluno{todayStudents.length === 1 ? "" : "s"}</span>
+        </div>
+        {students.isError ? <p role="alert" className="text-sm text-destructive">Não foi possível carregar os alunos de hoje.</p> : students.isLoading || !today ? (
+          <Skeleton className="h-24 w-full" />
+        ) : todayStudents.length === 0 ? (
+          <EmptyState title="Nenhum aluno com aula hoje" />
+        ) : (
+          <ul className="divide-y divide-border border-y border-border">
+            {todayStudents.map((student) => (
+              <li key={student.id} className="flex min-w-0 items-center gap-3 py-4">
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-secondary font-display font-semibold text-accent">{student.name.trim().slice(0, 1).toUpperCase()}</span>
+                <div className="min-w-0">
+                  <p className="truncate font-medium">{student.name}</p>
+                  <p className="text-xs text-muted-foreground">{[student.instrument, lessonDaysLabel(student.lesson_days)].filter(Boolean).join(" · ")}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+      <section className="min-w-0 space-y-3">
         <h2 className="font-display text-lg font-semibold">Cobranças em aberto</h2>
         {isError && <p className="text-sm text-destructive">Não foi possível carregar os dados.</p>}
         {isLoading ? (
@@ -83,21 +117,22 @@ function Painel() {
           </EmptyState>
         ) : (
           <ul className="space-y-2">
-            {open.map((r) => (
+            {open.map((r) => r.id ? (
               <li key={r.id}>
-                <Link to="/mensalidades/$id" params={{ id: r.id! }} className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card p-4 transition-colors hover:border-primary/60">
+                <Link to="/mensalidades/$id" params={{ id: r.id }} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-lg border border-border bg-card p-4 transition-colors hover:border-primary/60">
                   <div className="min-w-0">
                     <p className="truncate font-medium">{r.student_name}</p>
-                    <p className="text-xs text-muted-foreground">Vence {formatDateBR(r.due_date!)}</p>
-                    <div className="mt-1"><StatusBadge status={r.payment_status!} overdue={!!r.is_overdue} /></div>
+                    <p className="text-xs text-muted-foreground">Vence {r.due_date ? formatDateBR(r.due_date) : "—"}</p>
+                    <div className="mt-1"><StatusBadge status={r.payment_status ?? "pendente"} overdue={!!r.is_overdue} /></div>
                   </div>
-                  <span className="tabular font-display font-semibold">{formatBRL(r.balance_cents!)}</span>
+                  <span className="tabular shrink-0 font-display font-semibold">{formatBRL(r.balance_cents ?? 0)}</span>
                 </Link>
               </li>
-            ))}
+            ) : null)}
           </ul>
         )}
       </section>
+      </div>
     </div>
   );
 }
@@ -105,9 +140,9 @@ function Painel() {
 function Stat({ label, value, tone, loading }: { label: string; value: string; tone?: "success" | "warning" | "destructive"; loading?: boolean }) {
   const color = tone === "success" ? "text-success" : tone === "warning" ? "text-warning" : tone === "destructive" ? "text-destructive" : "text-foreground";
   return (
-    <div className="rounded-xl border border-border bg-card p-4">
+    <div className="min-w-0 rounded-lg border border-border bg-card p-4">
       <p className="text-xs uppercase tracking-wide text-muted-foreground">{label}</p>
-      {loading ? <Skeleton className="mt-2 h-7 w-24" /> : <p className={`tabular mt-1 font-display text-xl font-bold ${color}`}>{value}</p>}
+      {loading ? <Skeleton className="mt-2 h-7 w-24" /> : <p className={`tabular mt-1 break-words font-display text-lg font-bold sm:text-xl ${color}`}>{value}</p>}
     </div>
   );
 }

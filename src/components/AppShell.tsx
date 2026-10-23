@@ -25,12 +25,12 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen pb-24 md:pb-8">
       <header className="sticky top-0 z-30 border-b border-border/60 bg-background/85 backdrop-blur">
-        <div className="mx-auto flex max-w-4xl items-center justify-between gap-4 px-4 py-3">
-          <Link to="/painel" className="flex items-center gap-2">
-            <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-primary font-display text-sm font-bold text-primary-foreground shadow-glow">
+        <div className="mx-auto grid w-full max-w-[1600px] grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 py-3 sm:px-6 md:flex md:justify-between lg:px-8">
+          <Link to="/painel" className="flex min-w-0 items-center gap-2">
+            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-gradient-primary font-display text-sm font-bold text-primary-foreground shadow-glow">
               CP
             </span>
-            <span className="font-display text-lg font-semibold">Caixa do Professor</span>
+            <span className="min-w-0 truncate font-display text-lg font-semibold">Caixa do Professor</span>
           </Link>
           <nav className="hidden items-center gap-1 md:flex">
             {NAV.map((n) => (
@@ -44,13 +44,13 @@ export function AppShell({ children }: { children: ReactNode }) {
               </Link>
             ))}
           </nav>
-          <Button variant="ghost" size="sm" onClick={signOut} aria-label="Sair">
+          <Button variant="ghost" size="sm" className="shrink-0" onClick={signOut} aria-label="Sair">
             <LogOut className="h-4 w-4" />
             <span className="hidden sm:inline">Sair</span>
           </Button>
         </div>
       </header>
-      <main className="mx-auto max-w-4xl px-4 py-6">{children}</main>
+      <main className="mx-auto w-full max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">{children}</main>
       <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card/95 backdrop-blur md:hidden">
         <div className="mx-auto grid max-w-md grid-cols-3">
           {NAV.map((n) => (
