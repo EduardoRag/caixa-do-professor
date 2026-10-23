@@ -23,6 +23,8 @@ export const Route = createFileRoute("/_authenticated/mensalidades/")({
       { name: "description", content: "Mensalidades do mês por status." },
       { property: "og:title", content: "Mensalidades — Caixa do Professor" },
       { property: "og:description", content: "Mensalidades do mês por status." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Mensalidades,

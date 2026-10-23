@@ -24,6 +24,8 @@ export const Route = createFileRoute("/_authenticated/mensalidades/$id")({
       { name: "description", content: "Detalhes, pagamentos e cobrança da mensalidade." },
       { property: "og:title", content: "Mensalidade — Caixa do Professor" },
       { property: "og:description", content: "Detalhes, pagamentos e cobrança da mensalidade." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Detalhe,
