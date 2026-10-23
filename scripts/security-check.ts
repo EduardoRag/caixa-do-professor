@@ -15,9 +15,15 @@ async function user(tag: string) {
 }
 try {
   const A = await user("a"), B = await user("b");
-  const ins = await A.c.from("students").insert({ teacher_id: B.id, name: "Ana", monthly_amount_cents: 20000, due_day: 10, phone: "11987654321" }).select().single();
+  const ins = await A.c.from("students").insert({ teacher_id: B.id, name: "Ana", monthly_amount_cents: 20000, due_day: 10, phone: "11987654321", lesson_days: [1, 4] }).select().single();
   ok(ins.data?.teacher_id === A.id, "teacher_id forced to the signed-in teacher");
+  ok(JSON.stringify(ins.data?.lesson_days) === "[1,4]", "multiple lesson days persist");
   const sid = ins.data!.id;
+  const invalidDays = await A.c.from("students").update({ lesson_days: [7] }).eq("id", sid);
+  ok(!!invalidDays.error, "invalid weekday outside 0 through 6 rejected");
+  await A.c.from("students").update({ lesson_days: [0, 5] }).eq("id", sid);
+  const savedDays = await A.c.from("students").select("lesson_days").eq("id", sid).single();
+  ok(JSON.stringify(savedDays.data?.lesson_days) === "[0,5]", "edited lesson days read back correctly");
   const g1 = await A.c.rpc("generate_invoices", { _competence: "2026-10" });
   const g2 = await A.c.rpc("generate_invoices", { _competence: "2026-10" });
   ok(g1.data === 1 && g2.data === 0, "repeated generation does not duplicate");
@@ -41,8 +47,10 @@ try {
   ok((await B.c.from("invoice_summaries").select("*").eq("id", inv.id)).data!.length === 0, "B cannot read A's invoice by id");
   ok((await B.c.from("payments").select("*")).data!.length === 0, "B cannot read A's payments");
   ok((await B.c.from("audit_logs").select("*")).data!.length === 0, "B cannot read A's audit log");
-  const bu = await B.c.from("students").update({ name: "hack" }).eq("id", sid).select();
+  const bu = await B.c.from("students").update({ name: "hack", lesson_days: [2] }).eq("id", sid).select();
   ok((bu.data ?? []).length === 0, "B cannot update A's student");
+  const afterCrossUpdate = await A.c.from("students").select("lesson_days").eq("id", sid).single();
+  ok(JSON.stringify(afterCrossUpdate.data?.lesson_days) === "[0,5]", "B cannot change A's lesson days");
   const bd = await B.c.from("students").delete().eq("id", sid).select();
   ok((bd.data ?? []).length === 0, "B cannot delete A's student");
   ok(!!(await B.c.rpc("register_payment", { _invoice_id: inv.id, _amount_cents: 100, _paid_at: "2026-10-05", _method: "pix", _note: "" })).error, "B cannot pay A's invoice");
