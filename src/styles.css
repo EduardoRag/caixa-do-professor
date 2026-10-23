@@ -126,14 +126,6 @@
   }
 }
 
-/* Toasts ficam acima da barra de navegação inferior no celular. */
-@media (max-width: 767px) {
-  [data-sonner-toaster] {
-    bottom: 76px !important;
-    padding-bottom: 0 !important;
-  }
-}
-
 @utility bg-gradient-primary {
   background-image: var(--gradient-primary);
 }
