@@ -15,3 +15,5 @@
 - teacher_id is set and frozen by database triggers/functions, never trusted from the browser. Why: prevents cross-account access.
 - Status/balance come from the invoice_summaries view (security_invoker); "atrasada" is computed, never stored. Why: single source of truth.
 - Run scripts/security-check.ts after changing schema or policies. Why: it exercises two-account isolation end to end.
+- Recurring lesson days live on students as weekday integers (0 Sunday–6 Saturday) under existing ownership policies; filter active students with shared lesson-day helpers. Why: avoids duplicating schedule records and keeps daily filtering consistent.
+- The daily lesson panel uses America/Sao_Paulo and refreshes while open, independently of the financial competence. Why: UTC and selected billing months must not change which students have lessons today.
