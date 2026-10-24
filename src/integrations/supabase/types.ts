@@ -212,6 +212,7 @@ export type Database = {
       }
     }
     Functions: {
+      generate_current_month_invoices: { Args: never; Returns: number }
       generate_invoices: { Args: { _competence: string }; Returns: number }
       invoice_paid_cents: { Args: { _invoice_id: string }; Returns: number }
       register_payment: {

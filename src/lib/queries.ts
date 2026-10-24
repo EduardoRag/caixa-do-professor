@@ -14,6 +14,7 @@ export const studentsQuery = () =>
 export const invoicesByCompetenceQuery = (competence: string) =>
   queryOptions({
     queryKey: ["invoices", competence],
+    refetchInterval: 60_000,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("invoice_summaries")

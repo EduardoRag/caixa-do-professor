@@ -5,7 +5,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState, StatusBadge } from "@/components/AppShell";
 import { CompetencePicker } from "@/components/CompetencePicker";
 import { invoicesByCompetenceQuery } from "@/lib/queries";
-import { currentCompetence, formatBRL, formatDateBR } from "@/lib/finance";
+import { formatBRL, formatDateBR } from "@/lib/finance";
+import { useCurrentCompetence } from "@/hooks/use-current-competence";
 
 const FILTERS = ["todas", "pendente", "parcial", "paga", "atrasada"] as const;
 type Filter = (typeof FILTERS)[number];
@@ -34,7 +35,8 @@ const LABELS: Record<Filter, string> = { todas: "Todas", pendente: "Pendentes", 
 
 function Mensalidades() {
   const { mes, status = "todas" } = Route.useSearch();
-  const competence = mes ?? currentCompetence();
+  const currentMonth = useCurrentCompetence();
+  const competence = mes ?? currentMonth;
   const navigate = Route.useNavigate();
   const { data, isLoading, isError } = useQuery(invoicesByCompetenceQuery(competence));
 
@@ -63,7 +65,7 @@ function Mensalidades() {
       {isLoading ? (
         <Skeleton className="h-24 w-full" />
       ) : rows.length === 0 ? (
-        <EmptyState title="Nenhuma mensalidade encontrada">Gere as mensalidades do mês pelo Painel.</EmptyState>
+        <EmptyState title="Nenhuma mensalidade encontrada" />
       ) : (
         <ul className="space-y-2">
           {rows.map((r) => (
