@@ -1,17 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CalendarDays, Sparkles } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { CalendarDays } from "lucide-react";
 import { CompetencePicker } from "@/components/CompetencePicker";
-import { toast } from "sonner";
 import { z } from "zod";
-import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState, StatusBadge } from "@/components/AppShell";
 import { invoicesByCompetenceQuery, studentsQuery } from "@/lib/queries";
 import { lessonDaysLabel, studentsForLessonDay } from "@/lib/lesson-days";
 import { useLessonToday } from "@/hooks/use-lesson-today";
-import { currentCompetence, formatBRL, formatDateBR, friendlyError } from "@/lib/finance";
+import { currentCompetence, formatBRL, formatDateBR } from "@/lib/finance";
 
 const search = z.object({ mes: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/).optional() });
 
@@ -34,24 +31,10 @@ function Painel() {
   const { mes } = Route.useSearch();
   const competence = mes ?? currentCompetence();
   const navigate = Route.useNavigate();
-  const qc = useQueryClient();
   const { data, isLoading, isError } = useQuery(invoicesByCompetenceQuery(competence));
   const students = useQuery(studentsQuery());
   const today = useLessonToday();
   const todayStudents = today ? studentsForLessonDay(students.data ?? [], today.weekday) : [];
-
-  const generate = useMutation({
-    mutationFn: async () => {
-      const { data, error } = await supabase.rpc("generate_invoices", { _competence: competence });
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: (n) => {
-      toast.success(n ? `${n} mensalidade(s) gerada(s).` : "Nenhuma mensalidade nova — todas já existem.");
-      qc.invalidateQueries({ queryKey: ["invoices"] });
-    },
-    onError: (e) => toast.error(friendlyError(e)),
-  });
 
   const rows = data ?? [];
   const expected = rows.reduce((s, r) => s + (r.amount_cents ?? 0), 0);
@@ -73,11 +56,6 @@ function Painel() {
         <Stat label="Saldo pendente" value={formatBRL(pending)} tone="warning" loading={isLoading} />
         <Stat label="Inadimplentes" value={String(overdueStudents)} tone="destructive" loading={isLoading} />
       </div>
-
-      <Button className="w-full bg-gradient-primary shadow-glow sm:w-auto" onClick={() => generate.mutate()} disabled={generate.isPending}>
-        <Sparkles className="h-4 w-4" />
-        {generate.isPending ? "Gerando…" : "Gerar mensalidades do mês"}
-      </Button>
 
       <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
       <section className="min-w-0 space-y-3">
@@ -113,7 +91,6 @@ function Painel() {
           <Skeleton className="h-20 w-full" />
         ) : open.length === 0 ? (
           <EmptyState title={rows.length ? "Tudo recebido neste mês 🎉" : "Nenhuma mensalidade neste mês"}>
-            {!rows.length && "Cadastre alunos e use “Gerar mensalidades do mês”."}
           </EmptyState>
         ) : (
           <ul className="space-y-2">

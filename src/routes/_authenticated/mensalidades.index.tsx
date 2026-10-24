@@ -63,7 +63,7 @@ function Mensalidades() {
       {isLoading ? (
         <Skeleton className="h-24 w-full" />
       ) : rows.length === 0 ? (
-        <EmptyState title="Nenhuma mensalidade encontrada">Gere as mensalidades do mês pelo Painel.</EmptyState>
+        <EmptyState title="Nenhuma mensalidade encontrada" />
       ) : (
         <ul className="space-y-2">
           {rows.map((r) => (

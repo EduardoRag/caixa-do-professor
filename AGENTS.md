@@ -11,9 +11,10 @@
 
 ## Architecture rules
 - Money is stored as integer cents; never floats. Why: avoids rounding errors.
-- Writes to invoices/payments/audit_logs happen only through SECURITY DEFINER database functions that check auth.uid(); clients have SELECT only. Why: overpayment and ownership checks must be atomic and not bypassable.
+- Writes to invoices/payments/audit_logs happen only through SECURITY DEFINER database functions: user actions check auth.uid(), while automatic month generation is executable only by the trusted scheduler/service_role; clients have SELECT only. Why: financial ownership and balance checks must not be bypassable.
 - teacher_id is set and frozen by database triggers/functions, never trusted from the browser. Why: prevents cross-account access.
 - Status/balance come from the invoice_summaries view (security_invoker); "atrasada" is computed, never stored. Why: single source of truth.
 - Run scripts/security-check.ts after changing schema or policies. Why: it exercises two-account isolation end to end.
 - Recurring lesson days live on students as weekday integers (0 Sunday–6 Saturday) under existing ownership policies; filter active students with shared lesson-day helpers. Why: avoids duplicating schedule records and keeps daily filtering consistent.
 - The daily lesson panel uses America/Sao_Paulo and refreshes while open, independently of the financial competence. Why: UTC and selected billing months must not change which students have lessons today.
+- Current-month invoices are created atomically by student insert/reactivation triggers and a monthly SQL-only job at Sao Paulo midnight; existing invoices are never overwritten and UI writes invalidate invoice queries. Why: generation must work without a button or an open browser, without duplicating or changing historical charges.

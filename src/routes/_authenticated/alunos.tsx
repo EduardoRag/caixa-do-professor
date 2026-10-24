@@ -131,6 +131,7 @@ function StudentDialog({ student, onClose }: { student: Student | null; onClose:
     onSuccess: () => {
       toast.success("Aluno salvo.");
       qc.invalidateQueries({ queryKey: ["students"] });
+      qc.invalidateQueries({ queryKey: ["invoices"] });
       onClose();
     },
     onError: (e) => toast.error(e instanceof Error && !("code" in e) ? e.message : friendlyError(e)),
@@ -145,6 +146,7 @@ function StudentDialog({ student, onClose }: { student: Student | null; onClose:
     onSuccess: () => {
       toast.success("Aluno excluído.");
       qc.invalidateQueries({ queryKey: ["students"] });
+      qc.invalidateQueries({ queryKey: ["invoices"] });
       onClose();
     },
     onError: (e) => {
