@@ -8,7 +8,8 @@ import { EmptyState, StatusBadge } from "@/components/AppShell";
 import { invoicesByCompetenceQuery, studentsQuery } from "@/lib/queries";
 import { lessonDaysLabel, studentsForLessonDay } from "@/lib/lesson-days";
 import { useLessonToday } from "@/hooks/use-lesson-today";
-import { currentCompetence, formatBRL, formatDateBR } from "@/lib/finance";
+import { useCurrentCompetence } from "@/hooks/use-current-competence";
+import { formatBRL, formatDateBR } from "@/lib/finance";
 
 const search = z.object({ mes: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/).optional() });
 
@@ -29,7 +30,8 @@ export const Route = createFileRoute("/_authenticated/painel")({
 
 function Painel() {
   const { mes } = Route.useSearch();
-  const competence = mes ?? currentCompetence();
+  const currentMonth = useCurrentCompetence();
+  const competence = mes ?? currentMonth;
   const navigate = Route.useNavigate();
   const { data, isLoading, isError } = useQuery(invoicesByCompetenceQuery(competence));
   const students = useQuery(studentsQuery());
